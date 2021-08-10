@@ -1,12 +1,19 @@
 const express = require('express');
 const app = express();
+const listOfTeams = require('./controllers/teams');
 
 // Require team data
 const teams = require('./teams');
 
 // Home Route
-app.get('/teams', (req, res) => {
-  return res.send(teams)
+app.get('/teams', listOfTeams)
+
+// Team specific Route
+app.get('/teams/:id', (req, res) => {
+  const { id } = req.params;
+  const specificTeam = teams.filter(team => team.id === parseInt(id))
+
+  return res.send(specificTeam)
 })
 
 
