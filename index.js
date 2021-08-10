@@ -1,8 +1,13 @@
 const express = require('express');
 const app = express();
 
-// Require
+// Require team data
 const teams = require('./teams');
+
+// Home Route
+app.get('/teams', (req, res) => {
+  return res.send(teams)
+})
 
 
 // Setting up port
