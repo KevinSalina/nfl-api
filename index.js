@@ -1,9 +1,8 @@
-const express = require('express');
-const app = express();
-const { listOfTeams, getByTeamId } = require('./controllers/teams');
+/* eslint-disable no-console */
+const express = require('express')
+const app = express()
+const { listOfTeams, getByTeamId } = require('./controllers/teams')
 
-// Require team data
-const teams = require('./teams');
 
 // Home Route
 app.get('/teams', listOfTeams)

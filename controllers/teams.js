@@ -1,4 +1,4 @@
-const teams = require('../teams');
+const teams = require('../teams')
 
 
 const listOfTeams = (req, res) => {
@@ -6,7 +6,7 @@ const listOfTeams = (req, res) => {
 }
 
 const getByTeamId = (req, res) => {
-  const { id } = req.params;
+  const { id } = req.params
   const specificTeam = teams.filter(team => team.id === parseInt(id))
 
   return res.send(specificTeam)
