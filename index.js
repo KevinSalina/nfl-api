@@ -2,7 +2,44 @@
 const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
+const mysql = require('mysql')
+const teams = require('./teams')
 const { listOfTeams, getByTeamId, createNewTeam } = require('./controllers/teams')
+
+// Conencting to mySQL Database
+const db = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: 'SummerGolf77!',
+  database: 'nflTeams'
+})
+
+db.connect((err) => {
+  if (err) {
+    console.log(err)
+  } else {
+    console.log('CONNECTED TO DB')
+  }
+})
+
+
+// Intialize DB by inserting all teams
+// teams.forEach(team => {
+//   const {
+//     location, mascot, abbreviation, conference, division
+//   } = team
+
+//   // eslint-disable-next-line max-len
+//   db.query(`INSERT INTO teams (location, mascot, abbreviation, conference, division) values ('${location}', '${mascot}', '${abbreviation}', '${conference}', '${division}')`, (error, result) => {
+//     if (error) {
+//       console.log(error)
+//     } else {
+//       console.log(result)
+//       console.log('Teams added to DB')
+//     }
+//   })
+// })
+
 
 // Adding top level parsing
 app.use(bodyParser.json())
@@ -15,6 +52,7 @@ app.get('/teams/:id', getByTeamId)
 
 // Create post route for creating a new team
 app.post('/', createNewTeam)
+
 
 // Setting up port
 app.listen(3001, () => {
