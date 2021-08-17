@@ -22,25 +22,6 @@ db.connect((err) => {
   }
 })
 
-
-// Intialize DB by inserting all teams
-// teams.forEach(team => {
-//   const {
-//     location, mascot, abbreviation, conference, division
-//   } = team
-
-//   // eslint-disable-next-line max-len
-//   db.query(`INSERT INTO teams (location, mascot, abbreviation, conference, division) values ('${location}', '${mascot}', '${abbreviation}', '${conference}', '${division}')`, (error, result) => {
-//     if (error) {
-//       console.log(error)
-//     } else {
-//       console.log(result)
-//       console.log('Teams added to DB')
-//     }
-//   })
-// })
-
-
 // Adding top level parsing
 app.use(bodyParser.json())
 
@@ -52,6 +33,22 @@ app.get('/teams/:id', getByTeamId)
 
 // Create post route for creating a new team
 app.post('/', createNewTeam)
+
+app.get('/teams/populateAll', (req, res) => {
+  // Intialize DB by inserting all teams
+  teams.forEach(team => {
+    const {
+      location, mascot, abbreviation, conference, division
+    } = team
+
+    // eslint-disable-next-line max-len
+    db.query(`INSERT INTO teams (location, mascot, abbreviation, conference, division) values ('${location}', '${mascot}', '${abbreviation}', '${conference}', '${division}')`, error => {
+      if (error) console.log(error)
+    })
+  })
+
+  res.send('Teams Added!')
+})
 
 
 // Setting up port
