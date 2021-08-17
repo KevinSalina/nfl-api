@@ -34,6 +34,7 @@ app.get('/teams/:id', getByTeamId)
 // Create post route for creating a new team
 app.post('/', createNewTeam)
 
+// Populate NFL Teams Database
 app.get('/teams/populateAll', (req, res) => {
   // Intialize DB by inserting all teams
   teams.forEach(team => {
