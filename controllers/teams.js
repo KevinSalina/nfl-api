@@ -1,14 +1,19 @@
-const teams = require('../teams')
-const listOfTeams = (req, res) => {
+// const teams = require('../teams')
+const models = require('../models')
+
+const listOfTeams = async (req, res) => {
+  const teams = await models.teams.findAll()
+
   return res.send(teams)
 }
-const getByTeamId = (req, res) => {
+const getByTeamId = async (req, res) => {
   const { id } = req.params
-  const specificTeam = teams.filter(team => team.id === parseInt(id))
 
-  return res.send(specificTeam)
+  const foundTeam = await models.teams.findOne({ where: { id } })
+
+  return res.send(foundTeam)
 }
-const createNewTeam = (request, response) => {
+const createNewTeam = async (request, response) => {
   const {
     location, mascot, abbreviation, conference, division
   } = request.body
@@ -18,15 +23,11 @@ const createNewTeam = (request, response) => {
     return response.status(400).send('Missing required input')
   }
 
-  const newId = teams[teams.length - 1].id + 1
+  const newTeam = await models.teams.create({
+    location, mascot, abbreviation, conference, division
+  })
 
-  const newTeam = {
-    id: newId, location, mascot, abbreviation, conference, division
-  }
-
-  teams.push(newTeam)
-
-  return response.status(201).redirect('/teams')
+  return response.status(201).send(newTeam)
 }
 
 module.exports = { listOfTeams, getByTeamId, createNewTeam }
