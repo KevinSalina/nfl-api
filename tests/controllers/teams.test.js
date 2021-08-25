@@ -1,7 +1,7 @@
 const sinon = require('sinon')
 const sinonChai = require('sinon-chai')
 const chai = require('chai')
-const { describe, it } = require('mocha')
+const { describe, it, before, afterEach } = require('mocha')
 const { listOfTeams, getByTeamId, createNewTeam } = require('../../controllers/teams')
 const { allTeams, singleTeam } = require('../mocks/teams')
 const models = require('../../models')
@@ -10,9 +10,15 @@ chai.use(sinonChai)
 const { expect } = chai
 
 describe('teams controllers tests', () => {
+  let stubFindOne
+
+  before(() => {
+    stubFindOne = sinon.stub(models.teams, 'findOne')
+  })
+
+  // Get all teams
   describe('listOfTeams', () => {
     it('retrieves and displays all teams from nfl db using res.send method', async () => {
-      // first argument
       const stubFindAll = sinon.stub(models.teams, 'findAll').returns(allTeams)
       const stubSend = sinon.stub()
       const response = { send: stubSend }
@@ -30,15 +36,30 @@ describe('teams controllers tests', () => {
       const request = { params: { id: 1 } }
       const stubSend = sinon.stub()
       const response = { send: stubSend }
-      const stubFindOne = sinon.stub(models.teams, 'findOne').returns(singleTeam)
+
+      stubFindOne.returns(singleTeam)
 
       await getByTeamId(request, response)
 
       expect(stubFindOne).to.have.been.calledWith({ where: { id: 1 } })
       expect(stubSend).to.have.been.calledWith(singleTeam)
     })
+
+    it('if no team is found, return status 404', async () => {
+      const request = { params: { id: 'not-found' } }
+      const stubSendStatus = sinon.stub()
+      const response = { sendStatus: stubSendStatus }
+
+      stubFindOne.returns(null)
+
+      await getByTeamId(request, response)
+
+      expect(stubSendStatus).to.have.been.calledWith(404)
+      expect(stubFindOne).to.have.been.calledWith({ where: { id: 'not-found' } })
+    })
   })
 
+  // Create new team
   describe('createNewTeam', () => {
     it('takes the req.body and creates a new team in db', async () => {
       const request = { body: singleTeam }

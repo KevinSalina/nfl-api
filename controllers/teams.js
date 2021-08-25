@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // const teams = require('../teams')
 const models = require('../models')
 
@@ -8,11 +9,15 @@ const listOfTeams = async (req, res) => {
 }
 
 const getByTeamId = async (req, res) => {
-  const { id } = req.params
+  try {
+    const { id } = req.params
 
-  const foundTeam = await models.teams.findOne({ where: { id } })
+    const foundTeam = await models.teams.findOne({ where: { id } })
 
-  return res.send(foundTeam)
+    return foundTeam ? res.send(foundTeam) : res.sendStatus(404)
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 const createNewTeam = async (request, response) => {
