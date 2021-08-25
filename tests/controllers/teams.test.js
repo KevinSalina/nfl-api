@@ -1,7 +1,8 @@
 const sinon = require('sinon')
 const sinonChai = require('sinon-chai')
 const chai = require('chai')
-const { describe, it, before, afterEach } = require('mocha')
+// eslint-disable-next-line object-curly-newline
+const { describe, it, before, afterEach, beforeEach } = require('mocha')
 const { listOfTeams, getByTeamId, createNewTeam } = require('../../controllers/teams')
 const { allTeams, singleTeam } = require('../mocks/teams')
 const models = require('../../models')
@@ -10,10 +11,36 @@ chai.use(sinonChai)
 const { expect } = chai
 
 describe('teams controllers tests', () => {
+  let sandbox
   let stubFindOne
+  let response
+  let stubSend
+  let stubStatus
+  let stubSendStatus
 
   before(() => {
-    stubFindOne = sinon.stub(models.teams, 'findOne')
+    sandbox = sinon.createSandbox()
+
+    stubFindOne = sandbox.stub(models.teams, 'findOne')
+
+    stubStatus = sandbox.stub()
+    stubSend = sandbox.stub()
+    stubSendStatus = sandbox.stub()
+
+    response = {
+      status: stubStatus,
+      send: stubSend,
+      sendStatus: stubSendStatus
+    }
+  })
+
+  beforeEach(() => {
+    stubStatus.returns({ send: stubSendStatus })
+  })
+
+
+  afterEach(() => {
+    sandbox.reset()
   })
 
   // Get all teams
@@ -34,8 +61,8 @@ describe('teams controllers tests', () => {
   describe('getByTeamId', () => {
     it('retrieves team associated with id from db using res.send()', async () => {
       const request = { params: { id: 1 } }
-      const stubSend = sinon.stub()
-      const response = { send: stubSend }
+      // const stubSend = sinon.stub()
+      // const response = { send: stubSend }
 
       stubFindOne.returns(singleTeam)
 
@@ -46,16 +73,24 @@ describe('teams controllers tests', () => {
     })
 
     it('if no team is found, return status 404', async () => {
-      const request = { params: { id: 'not-found' } }
-      const stubSendStatus = sinon.stub()
-      const response = { sendStatus: stubSendStatus }
-
       stubFindOne.returns(null)
+      const request = { params: { id: 45 } }
 
       await getByTeamId(request, response)
 
+      expect(stubFindOne).to.have.been.calledWith({ where: { id: 45 } })
       expect(stubSendStatus).to.have.been.calledWith(404)
-      expect(stubFindOne).to.have.been.calledWith({ where: { id: 'not-found' } })
+    })
+
+    it('returns 500 if database throws an error', async () => {
+      stubFindOne.throws('error')
+      const request = { params: { id: 'error' } }
+
+      await getByTeamId(request, response)
+
+      expect(stubFindOne).to.have.been.calledWith({ where: { id: 'error' } })
+      expect(stubStatus).to.have.been.calledWith(500)
+      expect(stubSendStatus).to.have.been.calledWith('Unable to retrieve team, please try again')
     })
   })
 

@@ -11,12 +11,15 @@ const listOfTeams = async (req, res) => {
 const getByTeamId = async (req, res) => {
   try {
     const { id } = req.params
+    console.log(id)
 
     const foundTeam = await models.teams.findOne({ where: { id } })
 
     return foundTeam ? res.send(foundTeam) : res.sendStatus(404)
   } catch (error) {
     console.log(error)
+
+    return res.status(500).send('Unable to retrieve team, please try again')
   }
 }
 
